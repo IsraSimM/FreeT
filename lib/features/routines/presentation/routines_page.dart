@@ -156,7 +156,8 @@ class RoutinesPage extends ConsumerWidget {
       case RoutineFocusFilter.all:
       default:
         return 'Todos';
-}
+    }
+  }
 
   void _openNotifications(BuildContext context) {
     showModalBottomSheet<void>(
@@ -182,7 +183,6 @@ class RoutinesPage extends ConsumerWidget {
       ),
     );
   }
-}
 
   String _frequencyLabel(AutogenerationFrequency frequency) {
     switch (frequency) {
@@ -193,6 +193,7 @@ class RoutinesPage extends ConsumerWidget {
       case AutogenerationFrequency.custom:
         return 'Personalizado';
     }
+    return 'Personalizado';
   }
 
   String _relativeTime(DateTime date) {

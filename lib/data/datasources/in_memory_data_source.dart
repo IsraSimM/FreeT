@@ -236,13 +236,16 @@ class InMemoryAppDataSource implements RoutineRemoteDataSource {
     await Future<void>.delayed(const Duration(milliseconds: 400));
     final random = Random();
     final exercises = List<RoutineExerciseDto>.generate(5, (index) {
-      final baseWeight = 40 + (index * 5);
+      final double baseWeight = (40 + (index * 5)).toDouble();
       return RoutineExerciseDto(
         name: '$focus dinámico ${index + 1}',
         sets: 3 + (index % 2),
         reps: 10 - (index % 3),
-        weight: focus == 'Cardio' ? null : baseWeight + random.nextInt(12),
-        recommendedWeight: focus == 'Cardio' ? null : baseWeight + random.nextInt(18),
+        weight:
+            focus == 'Cardio' ? null : baseWeight + random.nextInt(12).toDouble(),
+        recommendedWeight: focus == 'Cardio'
+            ? null
+            : baseWeight + random.nextInt(18).toDouble(),
       );
     });
 
