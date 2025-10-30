@@ -11,22 +11,23 @@ Esta documentación define por completo el alcance funcional, técnico y operati
 2. [Personas y casos de uso](#personas-y-casos-de-uso)
 3. [Alcance funcional detallado](#alcance-funcional-detallado)
 4. [Requisitos no funcionales](#requisitos-no-funcionales)
-5. [Arquitectura de la solución](#arquitectura-de-la-solución)
-6. [Estructura de carpetas y módulos](#estructura-de-carpetas-y-módulos)
-7. [Determinación de features](#determinación-de-features)
-8. [Diseño de experiencia y UI](#diseño-de-experiencia-y-ui)
-9. [Modelado de datos y sincronización](#modelado-de-datos-y-sincronización)
-10. [Integraciones externas y dispositivos](#integraciones-externas-y-dispositivos)
-11. [Seguridad, privacidad y cumplimiento](#seguridad-privacidad-y-cumplimiento)
-12. [Rendimiento y optimización](#rendimiento-y-optimización)
-13. [Machine Learning y visión por computador](#machine-learning-y-visión-por-computador)
-14. [Telemetría, analítica y personalización](#telemetría-analítica-y-personalización)
-15. [Estrategia de pruebas E2E](#estrategia-de-pruebas-e2e)
-16. [Automatización, CI/CD y DevOps](#automatización-cicd-y-devops)
-17. [Lineamientos de código y calidad](#lineamientos-de-código-y-calidad)
-18. [Plan de liberación y soporte operativo](#plan-de-liberación-y-soporte-operativo)
-19. [Gestión de riesgos y mitigaciones](#gestión-de-riesgos-y-mitigaciones)
-20. [Anexos y recursos complementarios](#anexos-y-recursos-complementarios)
+5. [Guía de instalación y configuración](#guía-de-instalación-y-configuración)
+6. [Arquitectura de la solución](#arquitectura-de-la-solución)
+7. [Estructura de carpetas y módulos](#estructura-de-carpetas-y-módulos)
+8. [Determinación de features](#determinación-de-features)
+9. [Diseño de experiencia y UI](#diseño-de-experiencia-y-ui)
+10. [Modelado de datos y sincronización](#modelado-de-datos-y-sincronización)
+11. [Integraciones externas y dispositivos](#integraciones-externas-y-dispositivos)
+12. [Seguridad, privacidad y cumplimiento](#seguridad-privacidad-y-cumplimiento)
+13. [Rendimiento y optimización](#rendimiento-y-optimización)
+14. [Machine Learning y visión por computador](#machine-learning-y-visión-por-computador)
+15. [Telemetría, analítica y personalización](#telemetría-analítica-y-personalización)
+16. [Estrategia de pruebas E2E](#estrategia-de-pruebas-e2e)
+17. [Automatización, CI/CD y DevOps](#automatización-cicd-y-devops)
+18. [Lineamientos de código y calidad](#lineamientos-de-código-y-calidad)
+19. [Plan de liberación y soporte operativo](#plan-de-liberación-y-soporte-operativo)
+20. [Gestión de riesgos y mitigaciones](#gestión-de-riesgos-y-mitigaciones)
+21. [Anexos y recursos complementarios](#anexos-y-recursos-complementarios)
 
 ---
 
@@ -104,6 +105,102 @@ Esta documentación define por completo el alcance funcional, técnico y operati
 - **Privacidad y cumplimiento**: GDPR, CCPA, ISO 27001 alineado.
 - **Accesibilidad**: WCAG 2.1 AA, soporte screen readers y tamaños de fuente dinámicos.
 - **Internacionalización**: soporte pleno para cadenas, formatos, unidades métricas/imperiales.
+
+## Guía de instalación y configuración
+### Prerrequisitos del entorno
+- **Flutter SDK** ≥ 3.16.0 y Dart ≥ 3.1.0 instalados con el canal `stable`.<br>Validar con `flutter doctor` que no existan issues pendientes.
+- **Java 17** (para builds Android) y **Xcode 15** con Command Line Tools (para iOS/macOS).
+- **Android Studio** o **VS Code** con extensiones Flutter/Dart para ejecutar emuladores.
+- **Firebase CLI** (`npm install -g firebase-tools`) y **FlutterFire CLI** (`dart pub global activate flutterfire_cli`).
+- Acceso a cuentas de **Apple Developer** y **Google Play Console** para la configuración de firmas y despliegues.
+
+### Configuración inicial del proyecto
+1. Clonar el repositorio y acceder al directorio raíz:
+   ```bash
+   git clone https://github.com/<org>/FreeT.git
+   cd FreeT
+   ```
+2. Generar las plataformas nativas (solo la primera vez o tras limpiar la carpeta):
+   ```bash
+   flutter create --platforms=android,ios,web,macos,windows,linux .
+   ```
+3. Instalar dependencias de Dart/Flutter y generar archivos derivados:
+   ```bash
+   flutter pub get
+   dart run build_runner build --delete-conflicting-outputs
+   ```
+4. Verificar el estado del entorno local:
+   ```bash
+   flutter doctor -v
+   ```
+
+### Configuración de Firebase por entorno
+1. Crear el proyecto en Firebase Console e inicializar aplicaciones iOS, Android y (opcional) Web.
+2. Ejecutar `flutterfire configure` seleccionando los proyectos para cada entorno (`dev`, `staging`, `prod`). El comando generará `lib/firebase_options.dart` con los identificadores correspondientes.
+3. Descargar `google-services.json` (Android) y `GoogleService-Info.plist` (iOS), ubicándolos en (crear carpetas si aún no existen):
+   - `android/app/google-services.json`
+   - `ios/Runner/GoogleService-Info.plist`
+4. Habilitar los servicios requeridos:
+   - Authentication (correo, Google, Apple, teléfono).
+   - Cloud Firestore y Rules en modo restringido (usar reglas provistas en `/infra/firebase/firestore.rules`).
+   - Cloud Storage (para multimedia), Remote Config, Analytics, Messaging y Functions.
+5. Configurar Firestore y Functions emulators para desarrollo (cree la carpeta `infra/firebase` cuando aún no exista para versionar reglas y datos semilla):
+   ```bash
+   firebase login
+   firebase use <project-id-dev>
+   firebase emulators:start --import=./infra/firebase/emulator-data
+   ```
+
+### Variables de entorno y secretos
+- Crear el directorio `env/` en la raíz con archivos por entorno:
+  - `env/dev.env`
+  - `env/staging.env`
+  - `env/prod.env`
+- Cada archivo debe exponer pares `CLAVE=valor`. Ejemplo para `dev`:
+  ```env
+  ENVIRONMENT=dev
+  FIREBASE_PROJECT_ID=freet-dev
+  SENTRY_DSN=https://example.ingest.sentry.io/123456
+  MAPBOX_TOKEN=pk.test
+  OPENAI_API_KEY=sk-test
+  ```
+- Consumir las variables utilizando el flag `--dart-define-from-file=env/<env>.env` en tiempo de ejecución/build (requiere Flutter ≥3.16).
+- Gestionar secretos sensibles mediante **Google Secret Manager** o **GitHub Actions Secrets**; nunca versionarlos en el repositorio.
+
+### Ejecución local y pruebas
+- Lanzar la aplicación apuntando al entorno deseado (usa emuladores/disp. físicos). Si aún no se han creado sabores nativos, puede omitirse la bandera `--flavor`:
+   ```bash
+   flutter run --flavor dev --target lib/main.dart --dart-define-from-file=env/dev.env
+   ```
+- Ejecutar la batería de pruebas:
+  ```bash
+  flutter test
+  flutter test integration_test -d emulator-5554 # tras levantar emulador Android
+  ```
+- Validar métricas de linting y análisis estático:
+  ```bash
+  dart analyze
+  dart run dart_code_metrics:metrics analyze lib
+  ```
+
+### Preparación de builds y despliegues
+- **Android**:
+  1. Configurar la firma en `android/key.properties` y `android/app/build.gradle`.
+  2. Generar artefacto:
+     ```bash
+     flutter build appbundle --flavor prod --dart-define-from-file=env/prod.env
+     ```
+- **iOS**:
+  1. Abrir `ios/Runner.xcworkspace`, seleccionar esquema `prod` y configurar certificados.
+  2. Crear build para TestFlight/App Store:
+     ```bash
+     flutter build ipa --flavor prod --dart-define-from-file=env/prod.env
+     ```
+- **Web / Desktop (opcional)**:
+  ```bash
+  flutter build web --release --dart-define-from-file=env/staging.env
+  ```
+- Automatizar deploys con los pipelines descritos en [Automatización, CI/CD y DevOps](#automatización-cicd-y-devops), asegurando la ejecución de pruebas, análisis estático y subida de artefactos firmados.
 
 ## Arquitectura de la solución
 - **Framework**: Flutter 3.x estable (iOS/Android); apertura a Flutter Web para panel administración.
