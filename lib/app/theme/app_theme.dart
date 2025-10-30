@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../state/app_settings_controller.dart';
 
 /// Modela los temas claro y oscuro de la aplicación.
 class AppTheme {
@@ -40,6 +41,36 @@ final appThemeProvider = Provider<AppTheme>((ref) {
   );
 
   return AppTheme(light: baseLight, dark: baseDark);
+});
+
+/// Retorna el tema efectivo acorde a las preferencias del usuario.
+final effectiveThemeProvider = Provider<AppTheme>((ref) {
+  final base = ref.watch(appThemeProvider);
+  final settings = ref.watch(appSettingsControllerProvider);
+
+  if (settings.themeChoice == ThemeChoice.custom) {
+    final light = base.light.copyWith(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: settings.customLightColor,
+        primary: settings.customLightColor,
+        secondary: settings.customDarkColor,
+        brightness: Brightness.light,
+      ),
+    );
+
+    final dark = base.dark.copyWith(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: settings.customDarkColor,
+        primary: settings.customDarkColor,
+        secondary: settings.customLightColor,
+        brightness: Brightness.dark,
+      ),
+    );
+
+    return AppTheme(light: light, dark: dark);
+  }
+
+  return base;
 });
 
 /// Tipografías personalizadas coherentes con el design system.

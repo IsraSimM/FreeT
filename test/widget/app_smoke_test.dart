@@ -7,6 +7,6 @@ void main() {
   testWidgets('FreeTApp renders onboarding by default', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: FreeTApp()));
 
-    expect(find.text('Bienvenido a FreeT'), findsOneWidget);
+    expect(find.text('Configura tu experiencia'), findsOneWidget);
   });
 }
