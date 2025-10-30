@@ -1,5 +1,3 @@
-# FreeT
-
 ## Especificación integral del producto y plataforma móvil (Flutter + Firebase)
 
 Esta documentación define por completo el alcance funcional, técnico y operativo de la aplicación móvil **FreeT**, destinada a acompañar a usuarios en rutinas de bienestar mediante generación inteligente de ejercicios, seguimiento diario y evaluación asistida con visión por computador. Incluye requisitos exhaustivos, arquitectura modular, lineamientos de diseño, estrategia de datos, seguridad, pruebas, automatización y gobernanza operativa para garantizar una solución escalable, mantenible y con estética de alto nivel.
