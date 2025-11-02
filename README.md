@@ -1,5 +1,3 @@
-# FreeT
-
 ## Especificación integral del producto y plataforma móvil (Flutter + Firebase)
 
 Esta documentación define por completo el alcance funcional, técnico y operativo de la aplicación móvil **FreeT**, destinada a acompañar a usuarios en rutinas de bienestar mediante generación inteligente de ejercicios, seguimiento diario y evaluación asistida con visión por computador. Incluye requisitos exhaustivos, arquitectura modular, lineamientos de diseño, estrategia de datos, seguridad, pruebas, automatización y gobernanza operativa para garantizar una solución escalable, mantenible y con estética de alto nivel.
@@ -134,15 +132,7 @@ Esta documentación define por completo el alcance funcional, técnico y operati
    flutter doctor -v
    ```
 
-### Modo stub (sin Firebase ni cámara)
-- El proyecto se encuentra preconfigurado para ejecutar pruebas unitarias y widgets sin dependencias nativas. **No es necesario** disponer de proyectos Firebase ni permisos de cámara para compilar `flutter test` o correr la app en modo desarrollo básico.
-- El archivo [`lib/firebase/firebase_initializer.dart`](lib/firebase/firebase_initializer.dart) expone `ensureFirebaseInitialized` y `firebaseGatewaysProvider` como puntos de integración. Actualmente devuelven implementaciones stub que no requieren paquetes de Firebase.
-- Los módulos que, a futuro, consumirán Firestore/Remote Config/Auth o flujos de cámara deben inyectar dependencias a través de estos gateways o controladores de Riverpod, garantizando que el reemplazo por implementaciones reales sea transparente.
-- Para validar pantallas de evaluación se incluyen placeholders de cámara e IA; la lógica de captura se habilitará cuando el equipo de visión integre los paquetes oficiales (`camera`, `tflite_flutter`).
-
 ### Configuración de Firebase por entorno
-> _Responsable principal: Equipo de plataformas/Firebase._<br>
-> Los pasos siguientes no son obligatorios para ejecutar pruebas actuales, pero definen lo que deberá estar listo antes de integrar los SDKs reales.
 1. Crear el proyecto en Firebase Console e inicializar aplicaciones iOS, Android y (opcional) Web.
 2. Ejecutar `flutterfire configure` seleccionando los proyectos para cada entorno (`dev`, `staging`, `prod`). El comando generará `lib/firebase_options.dart` con los identificadores correspondientes.
 3. Descargar `google-services.json` (Android) y `GoogleService-Info.plist` (iOS), ubicándolos en (crear carpetas si aún no existen):
@@ -157,8 +147,7 @@ Esta documentación define por completo el alcance funcional, técnico y operati
    firebase login
    firebase use <project-id-dev>
    firebase emulators:start --import=./infra/firebase/emulator-data
-  ```
-- Tras completar la integración real, reemplazar la implementación stub del provider en [`lib/firebase/firebase_initializer.dart`](lib/firebase/firebase_initializer.dart) para exponer instancias compartidas (por ejemplo, `FirebaseFirestore.instance`).
+   ```
 
 ### Variables de entorno y secretos
 - Crear el directorio `env/` en la raíz con archivos por entorno:

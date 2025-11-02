@@ -93,7 +93,7 @@ class NavigationScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final location = GoRouterState.of(context).matchedLocation;
+    final location = GoRouter.of(context).location;
     final currentIndex = _destinations.indexWhere(
       (destination) => location.startsWith(destination.route),
     );
