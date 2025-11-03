@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/state/app_settings_controller.dart';
 import '../../../app/state/user_controller.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -23,6 +24,7 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardControllerProvider);
     final dashboardController = ref.read(dashboardControllerProvider.notifier);
+    final l10n = AppLocalizations.of(context);
     final userState = ref.watch(userControllerProvider);
 
     final username = userState.maybeWhen(
@@ -72,7 +74,7 @@ class DashboardPage extends ConsumerWidget {
           },
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => _DashboardError(
-            message: 'No pudimos cargar tu información. Intenta nuevamente.',
+            message: l10n.dashboardError,
             onRetry: dashboardController.load,
           ),
         ),
@@ -80,7 +82,7 @@ class DashboardPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: dashboardState.isRefreshing ? null : dashboardController.registerAttendance,
         icon: const Icon(Icons.check_circle_outline),
-        label: Text(dashboardState.attendanceJustRegistered ? 'Asistencia registrada' : 'Registrar asistencia'),
+        label: Text(dashboardState.attendanceJustRegistered ? l10n.dashboardAttendanceRegistered : l10n.dashboardRegisterAttendance),
       ),
     );
   }
@@ -116,7 +118,7 @@ class _AttendanceBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = ref.watch(appLocaleProvider);
+    final l10n = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(
         left: AppSpacing.lg,
@@ -137,7 +139,7 @@ class _AttendanceBanner extends ConsumerWidget {
             child: Text(
               locale.languageCode == 'en'
                   ? 'Streak updated! Keep the momentum going.'
-                  : '¡Racha actualizada! Sigue con ese impulso.',
+                  : 'Â¡Racha actualizada! Sigue con ese impulso.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -163,12 +165,12 @@ class _SummarySection extends StatelessWidget {
       ),
       _SummaryCard(
         title: 'Racha activa',
-        value: '${summary.activeStreak} días',
+        value: '${summary.activeStreak} dÃ­as',
         subtitle: 'Sin ausencias',
         icon: Icons.local_fire_department_outlined,
       ),
       _SummaryCard(
-        title: 'Calorías',
+        title: 'CalorÃ­as',
         value: '${summary.calories} kcal',
         subtitle: 'Estimado de hoy',
         icon: Icons.local_fire_department,
@@ -176,7 +178,7 @@ class _SummarySection extends StatelessWidget {
       _SummaryCard(
         title: 'Readiness',
         value: '${summary.readinessScore.round()}%',
-        subtitle: 'Recuperación',
+        subtitle: 'RecuperaciÃ³n',
         icon: Icons.bolt_outlined,
       ),
     ];
@@ -262,7 +264,7 @@ class _RoutineSection extends ConsumerWidget {
             child: ListTile(
               title: Text(exercise.name),
               subtitle: Text(
-                '${exercise.sets} sets · ${exercise.reps} reps',
+                '${exercise.sets} sets Â· ${exercise.reps} reps',
               ),
               trailing: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -299,7 +301,7 @@ class _StatsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Estadísticas', style: Theme.of(context).textTheme.titleLarge),
+        Text('EstadÃ­sticas', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         Column(
           children: stats
@@ -318,7 +320,7 @@ class _StatsSection extends StatelessWidget {
                             value: (stat.latestValue / stat.goalValue).clamp(0, 1),
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          Text('Último valor: ${stat.latestValue.toStringAsFixed(1)} ${stat.unit}'),
+                          Text('Ãšltimo valor: ${stat.latestValue.toStringAsFixed(1)} ${stat.unit}'),
                           Text('Meta: ${stat.goalValue.toStringAsFixed(1)} ${stat.unit}'),
                         ],
                       ),
@@ -429,3 +431,6 @@ class _DashboardError extends StatelessWidget {
     );
   }
 }
+
+
+

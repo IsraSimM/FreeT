@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freet/app/localization/app_localizations.dart';
 
 /// Barra superior reutilizable con avatar, nombre y accesos a acciones globales.
 class FreeTTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -17,15 +18,15 @@ class FreeTTopBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,
-      titleSpacing: 0,
+      titleSpacing: 16,
       title: Row(
         children: <Widget>[
           CircleAvatar(
-            backgroundImage:
-                photoUrl != null ? NetworkImage(photoUrl!) : null,
+            backgroundImage: photoUrl != null ? NetworkImage(photoUrl!) : null,
             child: photoUrl == null && username.isNotEmpty
                 ? Text(username[0].toUpperCase())
                 : null,
@@ -37,7 +38,7 @@ class FreeTTopBar extends StatelessWidget implements PreferredSizeWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  'Hola,',
+                  l10n.greeting,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 Text(
@@ -53,12 +54,12 @@ class FreeTTopBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.notifications_outlined),
           onPressed: onNotificationsPressed,
-          tooltip: 'Notificaciones',
+          tooltip: l10n.notifications,
         ),
         IconButton(
           icon: const Icon(Icons.settings_outlined),
           onPressed: onSettingsPressed,
-          tooltip: 'Configuración',
+          tooltip: l10n.settings,
         ),
       ],
     );

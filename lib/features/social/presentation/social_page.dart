@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/state/user_controller.dart';
-import '../../../core/constants/app_spacing.dart';
-import '../../../core/widgets/free_t_top_bar.dart';
-import '../../../domain/entities/leaderboard.dart';
-import '../../notifications/presentation/notifications_sheet.dart';
-import '../../settings/presentation/settings_sheet.dart';
-import '../application/social_controller.dart';
+import 'package:freet/app/localization/app_localizations.dart';
+import 'package:freet/app/state/user_controller.dart';
+import 'package:freet/core/constants/app_spacing.dart';
+import 'package:freet/core/widgets/free_t_top_bar.dart';
+import 'package:freet/domain/entities/leaderboard.dart';
+import 'package:freet/features/notifications/presentation/notifications_sheet.dart';
+import 'package:freet/features/settings/presentation/settings_sheet.dart';
+import 'package:freet/features/social/application/social_controller.dart';
 
 /// Espacio social con rankings y actividad de la comunidad.
 class SocialPage extends ConsumerWidget {
@@ -21,6 +22,7 @@ class SocialPage extends ConsumerWidget {
     final state = ref.watch(socialControllerProvider);
     final controller = ref.read(socialControllerProvider.notifier);
     final userState = ref.watch(userControllerProvider);
+    final l10n = AppLocalizations.of(context);
     final username = userState.maybeWhen(
       data: (profile) => profile.displayName,
       orElse: () => 'FreeT',
@@ -37,24 +39,53 @@ class SocialPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text('Rankings activos', style: Theme.of(context).textTheme.titleLarge),
-                SegmentedButton<LeaderboardType>(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact = constraints.maxWidth < 420;
+                final selector = SegmentedButton<LeaderboardType>(
                   segments: LeaderboardType.values
                       .map(
                         (type) => ButtonSegment<LeaderboardType>(
                           value: type,
-                          label: Text(_leaderboardLabel(type)),
+                          label: Text(_leaderboardLabel(l10n, type)),
                         ),
                       )
                       .toList(),
                   selected: <LeaderboardType>{state.selectedType},
                   onSelectionChanged: (selection) =>
                       controller.loadLeaderboard(selection.first),
-                ),
-              ],
+                );
+
+                if (isCompact) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        l10n.socialActiveRankings,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: selector,
+                      ),
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        l10n.socialActiveRankings,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    selector,
+                  ],
+                );
+              },
             ),
             const SizedBox(height: AppSpacing.md),
             Expanded(
@@ -62,10 +93,12 @@ class SocialPage extends ConsumerWidget {
                 data: (snapshot) {
                   return ListView.separated(
                     itemCount: snapshot.entries.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppSpacing.sm),
                     itemBuilder: (context, index) {
                       final entry = snapshot.entries[index];
-                      return _LeaderboardTile(entry: entry, position: index + 1);
+                      return _LeaderboardTile(
+                          entry: entry, position: index + 1);
                     },
                   );
                 },
@@ -74,11 +107,12 @@ class SocialPage extends ConsumerWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const Text('No pudimos cargar los rankings'),
+                      Text(l10n.socialLoadError),
                       const SizedBox(height: AppSpacing.md),
                       FilledButton(
-                        onPressed: () => controller.loadLeaderboard(state.selectedType),
-                        child: const Text('Reintentar'),
+                        onPressed: () =>
+                            controller.loadLeaderboard(state.selectedType),
+                        child: Text(l10n.commonRetry),
                       ),
                     ],
                   ),
@@ -91,21 +125,21 @@ class SocialPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
         icon: const Icon(Icons.group_add_outlined),
-        label: const Text('Invitar amigos'),
+        label: Text(l10n.socialInviteFriends),
       ),
     );
   }
 
-  String _leaderboardLabel(LeaderboardType type) {
+  String _leaderboardLabel(AppLocalizations l10n, LeaderboardType type) {
     switch (type) {
       case LeaderboardType.streak:
-        return 'Rachas';
+        return l10n.leaderboardLabel('streak');
       case LeaderboardType.weightLifted:
-        return 'Peso';
+        return l10n.leaderboardLabel('weight');
       case LeaderboardType.cardioMinutes:
-        return 'Cardio';
+        return l10n.leaderboardLabel('cardio');
       case LeaderboardType.communityScore:
-        return 'Comunidad';
+        return l10n.leaderboardLabel('community');
     }
   }
 
@@ -143,14 +177,19 @@ class _LeaderboardTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1 * position),
+          backgroundColor:
+              Theme.of(context).colorScheme.primary.withOpacity(0.1 * position),
           child: Text(position.toString()),
         ),
         title: Text(entry.displayName),
-        subtitle: Text('Puntaje: ${entry.value.toStringAsFixed(0)} (+${entry.delta.toStringAsFixed(0)})'),
+        subtitle: Text(
+          '${l10n.socialScoreLabel}: ${l10n.formatNumber(entry.value)} '
+          '(${l10n.socialScoreChange} ${l10n.formatSigned(entry.delta)})',
+        ),
         trailing: Icon(
           position == 1
               ? Icons.emoji_events_outlined

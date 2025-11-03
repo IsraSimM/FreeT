@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/state/app_settings_controller.dart';
-import '../../../app/state/user_controller.dart';
+import 'package:freet/app/localization/app_localizations.dart';
+import 'package:freet/app/state/app_settings_controller.dart';
+import 'package:freet/app/state/user_controller.dart';
 
 class SettingsSheet extends ConsumerStatefulWidget {
   const SettingsSheet({super.key});
@@ -24,6 +25,7 @@ class _SettingsSheetState extends ConsumerState<SettingsSheet>
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(appSettingsControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     return SafeArea(
       child: Column(
@@ -41,10 +43,10 @@ class _SettingsSheetState extends ConsumerState<SettingsSheet>
           TabBar(
             controller: _controller,
             labelColor: Theme.of(context).colorScheme.primary,
-            tabs: const <Tab>[
-              Tab(text: 'Tema'),
-              Tab(text: 'Idioma'),
-              Tab(text: 'Notificaciones'),
+            tabs: <Tab>[
+              Tab(text: l10n.settingsThemeTab),
+              Tab(text: l10n.settingsLanguageTab),
+              Tab(text: l10n.settingsNotificationsTab),
             ],
           ),
           SizedBox(
@@ -77,12 +79,16 @@ class _ThemeSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Modo de tema', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.settingsThemeModeTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -93,8 +99,12 @@ class _ThemeSettings extends ConsumerWidget {
                     selected: settings.themeChoice == choice,
                     onSelected: (value) {
                       if (value) {
-                        ref.read(appSettingsControllerProvider.notifier).changeTheme(choice);
-                        ref.read(userControllerProvider.notifier).updatePreferences(theme: choice.name);
+                        ref
+                            .read(appSettingsControllerProvider.notifier)
+                            .changeTheme(choice);
+                        ref
+                            .read(userControllerProvider.notifier)
+                            .updatePreferences(theme: choice.name);
                       }
                     },
                   ),
@@ -102,13 +112,16 @@ class _ThemeSettings extends ConsumerWidget {
                 .toList(),
           ),
           const SizedBox(height: 24),
-          Text('Colores personalizados', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.settingsColorSection,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 12),
           Row(
             children: <Widget>[
               Expanded(
                 child: _ColorPreview(
-                  label: 'Primario',
+                  label: l10n.settingsPrimaryColor,
                   color: settings.customLightColor,
                   onTap: () => _showColorPicker(context, ref, isDark: false),
                 ),
@@ -116,7 +129,7 @@ class _ThemeSettings extends ConsumerWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: _ColorPreview(
-                  label: 'Secundario',
+                  label: l10n.settingsSecondaryColor,
                   color: settings.customDarkColor,
                   onTap: () => _showColorPicker(context, ref, isDark: true),
                 ),
@@ -128,23 +141,29 @@ class _ThemeSettings extends ConsumerWidget {
     );
   }
 
-  Future<void> _showColorPicker(BuildContext context, WidgetRef ref,
-      {required bool isDark}) async {
+  Future<void> _showColorPicker(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool isDark,
+  }) async {
     final colors = <Color>[
+      Colors.red,
+      Colors.orange,
+      Colors.yellow,
       Colors.green,
       Colors.blue,
       Colors.purple,
-      Colors.orange,
-      Colors.redAccent,
+      Colors.pink,
       Colors.teal,
       Colors.indigo,
     ];
 
     await showDialog<void>(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
+        final dialogL10n = AppLocalizations.of(dialogContext);
         return AlertDialog(
-          title: const Text('Selecciona color base'),
+          title: Text(dialogL10n.settingsSelectBaseColor),
           content: SizedBox(
             width: 300,
             child: Wrap(
@@ -163,7 +182,7 @@ class _ThemeSettings extends ConsumerWidget {
                               .read(appSettingsControllerProvider.notifier)
                               .updateCustomColors(light: color);
                         }
-                        Navigator.of(context).pop();
+                        Navigator.of(dialogContext).pop();
                       },
                       child: CircleAvatar(backgroundColor: color, radius: 24),
                     ),
@@ -202,7 +221,10 @@ class _ColorPreview extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white),
+          style: Theme.of(context)
+              .textTheme
+              .titleMedium
+              ?.copyWith(color: Colors.white),
         ),
       ),
     );
@@ -216,6 +238,7 @@ class _LanguageSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final locales = const <Locale>[
       Locale('es'),
       Locale('en'),
@@ -227,17 +250,24 @@ class _LanguageSettings extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Selecciona idioma', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.settingsSelectLanguage,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 12),
           ...locales.map(
             (locale) => RadioListTile<Locale>(
               value: locale,
               groupValue: settings.locale,
-              title: Text(_localeLabel(locale)),
+              title: Text(l10n.languageLabel(locale.languageCode)),
               onChanged: (selected) {
                 if (selected != null) {
-                  ref.read(appSettingsControllerProvider.notifier).changeLocale(selected);
-                  ref.read(userControllerProvider.notifier).updatePreferences(languageCode: selected.languageCode);
+                  ref
+                      .read(appSettingsControllerProvider.notifier)
+                      .changeLocale(selected);
+                  ref.read(userControllerProvider.notifier).updatePreferences(
+                        languageCode: selected.languageCode,
+                      );
                 }
               },
             ),
@@ -245,18 +275,6 @@ class _LanguageSettings extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _localeLabel(Locale locale) {
-    switch (locale.languageCode) {
-      case 'en':
-        return 'Inglés';
-      case 'pt':
-        return 'Portugués';
-      case 'es':
-      default:
-        return 'Español';
-    }
   }
 }
 
@@ -267,6 +285,7 @@ class _NotificationSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final prefs = settings.notifications;
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -275,8 +294,8 @@ class _NotificationSettings extends ConsumerWidget {
         children: <Widget>[
           SwitchListTile(
             value: prefs.push,
-            title: const Text('Push'),
-            subtitle: const Text('Recibe alertas en el dispositivo'),
+            title: Text(l10n.notificationsPush),
+            subtitle: Text(l10n.notificationsPushSubtitle),
             onChanged: (value) {
               ref
                   .read(appSettingsControllerProvider.notifier)
@@ -285,8 +304,8 @@ class _NotificationSettings extends ConsumerWidget {
           ),
           SwitchListTile(
             value: prefs.email,
-            title: const Text('Email'),
-            subtitle: const Text('Resumen semanal y campañas'),
+            title: Text(l10n.notificationsEmail),
+            subtitle: Text(l10n.notificationsEmailSubtitle),
             onChanged: (value) {
               ref
                   .read(appSettingsControllerProvider.notifier)
@@ -295,8 +314,8 @@ class _NotificationSettings extends ConsumerWidget {
           ),
           SwitchListTile(
             value: prefs.inApp,
-            title: const Text('In-App'),
-            subtitle: const Text('Banners y recordatorios dentro de FreeT'),
+            title: Text(l10n.notificationsInApp),
+            subtitle: Text(l10n.notificationsInAppSubtitle),
             onChanged: (value) {
               ref
                   .read(appSettingsControllerProvider.notifier)
@@ -306,29 +325,41 @@ class _NotificationSettings extends ConsumerWidget {
           const Divider(height: 32),
           CheckboxListTile(
             value: prefs.dailyReminders,
-            title: const Text('Recordatorios diarios'),
+            title: Text(l10n.notificationsDaily),
             onChanged: (value) {
               ref
                   .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(prefs.copyWith(dailyReminders: value ?? prefs.dailyReminders));
+                  .updateNotifications(
+                    prefs.copyWith(
+                      dailyReminders: value ?? prefs.dailyReminders,
+                    ),
+                  );
             },
           ),
           CheckboxListTile(
             value: prefs.weeklySummary,
-            title: const Text('Resumen semanal'),
+            title: Text(l10n.notificationsWeekly),
             onChanged: (value) {
               ref
                   .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(prefs.copyWith(weeklySummary: value ?? prefs.weeklySummary));
+                  .updateNotifications(
+                    prefs.copyWith(
+                      weeklySummary: value ?? prefs.weeklySummary,
+                    ),
+                  );
             },
           ),
           CheckboxListTile(
             value: prefs.personalizedTips,
-            title: const Text('Tips personalizados'),
+            title: Text(l10n.notificationsTips),
             onChanged: (value) {
               ref
                   .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(prefs.copyWith(personalizedTips: value ?? prefs.personalizedTips));
+                  .updateNotifications(
+                    prefs.copyWith(
+                      personalizedTips: value ?? prefs.personalizedTips,
+                    ),
+                  );
             },
           ),
         ],

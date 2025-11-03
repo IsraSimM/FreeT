@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/state/app_settings_controller.dart';
 import '../../../app/state/user_controller.dart';
 import '../../../core/constants/app_spacing.dart';
@@ -10,7 +11,7 @@ import '../../../services/auth/auth_repository.dart';
 import '../../notifications/presentation/notifications_sheet.dart';
 import '../../settings/presentation/settings_sheet.dart';
 
-/// Menú extendido con accesos a módulos secundarios.
+/// Menu extendido con accesos a modulos secundarios.
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
 
@@ -21,6 +22,7 @@ class MorePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userState = ref.watch(userControllerProvider);
     final settings = ref.watch(appSettingsControllerProvider);
+    final l10n = AppLocalizations.of(context);
     final username = userState.maybeWhen(
       data: (profile) => profile.displayName,
       orElse: () => 'FreeT',
@@ -50,11 +52,12 @@ class MorePage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const Text('No pudimos cargar tu perfil'),
+              Text(l10n.profileLoadError),
               const SizedBox(height: AppSpacing.md),
               FilledButton(
-                onPressed: () => ref.read(userControllerProvider.notifier).load(),
-                child: const Text('Reintentar'),
+                onPressed: () =>
+                    ref.read(userControllerProvider.notifier).load(),
+                child: Text(l10n.commonRetry),
               ),
             ],
           ),
@@ -93,7 +96,7 @@ class MorePage extends ConsumerWidget {
     await authRepository.signOut();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Sesión cerrada correctamente')),
+        SnackBar(content: Text(AppLocalizations.of(context).profileLogoutSuccess)),
       );
     }
   }
@@ -106,6 +109,7 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -116,9 +120,15 @@ class _ProfileHeader extends StatelessWidget {
               children: <Widget>[
                 CircleAvatar(
                   radius: 32,
-                  backgroundImage: profile.photoUrl != null ? NetworkImage(profile.photoUrl!) : null,
+                  backgroundImage: profile.photoUrl != null
+                      ? NetworkImage(profile.photoUrl!)
+                      : null,
                   child: profile.photoUrl == null
-                      ? Text(profile.displayName.isNotEmpty ? profile.displayName[0] : '?')
+                      ? Text(
+                          profile.displayName.isNotEmpty
+                              ? profile.displayName[0]
+                              : '?',
+                        )
                       : null,
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -126,15 +136,21 @@ class _ProfileHeader extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(profile.displayName, style: Theme.of(context).textTheme.titleMedium),
-                      Text(profile.email, style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        profile.displayName,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(
+                        profile.email,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ),
                 ),
                 FilledButton.icon(
                   onPressed: () {},
                   icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Editar'),
+                  label: Text(l10n.commonEdit),
                 ),
               ],
             ),
@@ -143,7 +159,7 @@ class _ProfileHeader extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: _MetricTile(
-                    label: 'Peso',
+                    label: l10n.profileWeight,
                     value: '${profile.weightKg.toStringAsFixed(1)} kg',
                     icon: Icons.monitor_weight_outlined,
                   ),
@@ -151,7 +167,7 @@ class _ProfileHeader extends StatelessWidget {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: _MetricTile(
-                    label: 'Altura',
+                    label: l10n.profileHeight,
                     value: '${profile.heightCm.toStringAsFixed(0)} cm',
                     icon: Icons.height,
                   ),
@@ -166,7 +182,11 @@ class _ProfileHeader extends StatelessWidget {
 }
 
 class _MetricTile extends StatelessWidget {
-  const _MetricTile({required this.label, required this.value, required this.icon});
+  const _MetricTile({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
 
   final String label;
   final String value;
@@ -204,22 +224,27 @@ class _DevicesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Dispositivos vinculados', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.profileLinkedDevices,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.md),
-            if (devices.isEmpty)
-              const Text('Sin dispositivos conectados'),
+            if (devices.isEmpty) Text(l10n.profileNoDevices),
             ...devices.map(
               (device) => SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 value: device.isActive,
                 title: Text(device.name),
-                subtitle: Text('Tipo: ${device.type.name}'),
+                subtitle: Text(
+                  '${l10n.profileDeviceTypeLabel}: ${device.type.name}',
+                ),
                 onChanged: (_) {},
               ),
             ),
@@ -227,7 +252,7 @@ class _DevicesSection extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.add_link),
-              label: const Text('Vincular nuevo dispositivo'),
+              label: Text(l10n.profileLinkNewDevice),
             ),
           ],
         ),
@@ -243,6 +268,7 @@ class _SettingsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final prefs = settings.notifications;
     return Card(
       child: Padding(
@@ -250,19 +276,23 @@ class _SettingsSection extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Preferencias', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.settingsPreferences,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.sm),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.language),
-              title: const Text('Idioma'),
+              title: Text(l10n.settingsLanguageTab),
               subtitle: Text(settings.locale.languageCode.toUpperCase()),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => showModalBottomSheet<void>(
                 context: context,
                 isScrollControlled: true,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(28)),
                 ),
                 builder: (_) => const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -273,9 +303,11 @@ class _SettingsSection extends ConsumerWidget {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: prefs.personalizedTips,
-              title: const Text('Tips personalizados'),
+              title: Text(l10n.notificationsTips),
               onChanged: (value) {
-                ref.read(appSettingsControllerProvider.notifier).updateNotifications(
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(
                       prefs.copyWith(personalizedTips: value),
                     );
               },
@@ -283,9 +315,11 @@ class _SettingsSection extends ConsumerWidget {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               value: prefs.dailyReminders,
-              title: const Text('Recordatorios diarios'),
+              title: Text(l10n.notificationsDaily),
               onChanged: (value) {
-                ref.read(appSettingsControllerProvider.notifier).updateNotifications(
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(
                       prefs.copyWith(dailyReminders: value),
                     );
               },
@@ -293,8 +327,8 @@ class _SettingsSection extends ConsumerWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.analytics_outlined),
-              title: const Text('Telemetría y analítica'),
-              subtitle: const Text('Configura métricas y paneles personalizados'),
+              title: Text(l10n.settingsTelemetryTitle),
+              subtitle: Text(l10n.settingsTelemetrySubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {},
             ),
@@ -312,26 +346,30 @@ class _SupportSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Soporte', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              l10n.supportTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: AppSpacing.sm),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.support_agent_outlined),
-              title: const Text('FAQ & Tickets'),
-              subtitle: const Text('Consulta la base de conocimiento o levanta un caso'),
+              title: Text(l10n.supportFaq),
+              subtitle: Text(l10n.supportFaqSubtitle),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {},
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.logout),
-              title: const Text('Cerrar sesión'),
+              title: Text(l10n.supportLogout),
               onTap: onLogout,
             ),
           ],
@@ -340,3 +378,4 @@ class _SupportSection extends StatelessWidget {
     );
   }
 }
+
