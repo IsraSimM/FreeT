@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/state/user_controller.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/widgets/free_t_top_bar.dart';
@@ -20,6 +21,7 @@ class RoutinesPage extends ConsumerWidget {
     final routinesState = ref.watch(routinesControllerProvider);
     final routinesController = ref.read(routinesControllerProvider.notifier);
     final userState = ref.watch(userControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     final username = userState.maybeWhen(
       data: (profile) => profile.displayName,
@@ -40,7 +42,10 @@ class RoutinesPage extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text('Tus rutinas', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  l10n.routinesTitle,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 FilledButton.icon(
                   onPressed: routinesState.isGenerating
                       ? null
@@ -52,7 +57,11 @@ class RoutinesPage extends ConsumerWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.auto_awesome),
-                  label: Text(routinesState.isGenerating ? 'Generando...' : 'Generar IA'),
+                  label: Text(
+                    routinesState.isGenerating
+                        ? l10n.routinesGenerating
+                        : l10n.routinesGenerateAi,
+                  ),
                 ),
               ],
             ),
@@ -65,7 +74,7 @@ class RoutinesPage extends ConsumerWidget {
                       (focus) => Padding(
                         padding: const EdgeInsets.only(right: AppSpacing.sm),
                         child: ChoiceChip(
-                          label: Text(_focusLabel(focus)),
+                          label: Text(l10n.routineFocusLabel(focus.name)),
                           selected: routinesState.focusFilter == focus,
                           onSelected: (_) => routinesController.changeFocus(focus),
                         ),
@@ -78,8 +87,8 @@ class RoutinesPage extends ConsumerWidget {
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               value: routinesState.autogenerationEnabled,
-              title: const Text('Autogeneración de rutinas'),
-              subtitle: const Text('Programa nuevas rutinas en función de tus objetivos'),
+              title: Text(l10n.routinesAutogenerationTitle),
+              subtitle: Text(l10n.routinesAutogenerationSubtitle),
               onChanged: routinesController.toggleAutogeneration,
             ),
             AnimatedSwitcher(
@@ -87,7 +96,7 @@ class RoutinesPage extends ConsumerWidget {
               child: routinesState.autogenerationEnabled
                   ? Row(
                       children: <Widget>[
-                        const Text('Frecuencia:'),
+                        Text('${l10n.commonFrequency}:'),
                         const SizedBox(width: AppSpacing.sm),
                         DropdownButton<AutogenerationFrequency>(
                           value: routinesState.frequency,
@@ -95,7 +104,9 @@ class RoutinesPage extends ConsumerWidget {
                               .map(
                                 (frequency) => DropdownMenuItem<AutogenerationFrequency>(
                                   value: frequency,
-                                  child: Text(_frequencyLabel(frequency)),
+                                  child: Text(
+                                    l10n.routineFrequencyLabel(frequency.name),
+                                  ),
                                 ),
                               )
                               .toList(),
@@ -107,7 +118,9 @@ class RoutinesPage extends ConsumerWidget {
                         ),
                         const Spacer(),
                         if (routinesState.lastGenerated != null)
-                          Text('Última: ${_relativeTime(routinesState.lastGenerated!)}'),
+                          Text(
+                            '${l10n.commonLast}: ${_relativeTime(context, routinesState.lastGenerated!)}',
+                          ),
                       ],
                     )
                   : const SizedBox.shrink(),
@@ -118,7 +131,7 @@ class RoutinesPage extends ConsumerWidget {
                 data: (routines) {
                   final filtered = routinesController.filteredRoutines();
                   if (filtered.isEmpty) {
-                    return const _EmptyState();
+                    return _EmptyState();
                   }
                   return ListView.separated(
                     itemCount: filtered.length,
@@ -139,24 +152,6 @@ class RoutinesPage extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _focusLabel(RoutineFocusFilter filter) {
-    switch (filter) {
-      case RoutineFocusFilter.full:
-        return 'Completo';
-      case RoutineFocusFilter.leg:
-        return 'Pierna';
-      case RoutineFocusFilter.arm:
-        return 'Brazo';
-      case RoutineFocusFilter.cardio:
-        return 'Cardio';
-      case RoutineFocusFilter.custom:
-        return 'Personalizado';
-      case RoutineFocusFilter.all:
-      default:
-        return 'Todos';
-    }
   }
 
   void _openNotifications(BuildContext context) {
@@ -184,27 +179,16 @@ class RoutinesPage extends ConsumerWidget {
     );
   }
 
-  String _frequencyLabel(AutogenerationFrequency frequency) {
-    switch (frequency) {
-      case AutogenerationFrequency.weekly:
-        return 'Semanal';
-      case AutogenerationFrequency.monthly:
-        return 'Mensual';
-      case AutogenerationFrequency.custom:
-        return 'Personalizado';
-    }
-    return 'Personalizado';
-  }
-
-  String _relativeTime(DateTime date) {
+  String _relativeTime(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context);
     final difference = DateTime.now().difference(date);
     if (difference.inMinutes < 60) {
-      return '${difference.inMinutes} min';
+      return '${difference.inMinutes} ${l10n.timeMinuteShort}';
     }
     if (difference.inHours < 24) {
-      return '${difference.inHours} h';
+      return '${difference.inHours} ${l10n.timeHourShort}';
     }
-    return '${difference.inDays} d';
+    return '${difference.inDays} ${l10n.timeDayShort}';
   }
 }
 
@@ -215,6 +199,7 @@ class _RoutineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: ExpansionTile(
         title: Text(routine.name),
@@ -224,7 +209,9 @@ class _RoutineCard extends StatelessWidget {
             .map(
               (exercise) => ListTile(
                 title: Text(exercise.name),
-                subtitle: Text('${exercise.sets}x${exercise.reps}'),
+                subtitle: Text(
+                  l10n.routineSetsReps(exercise.sets, exercise.reps),
+                ),
                 trailing: exercise.weight != null
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
@@ -233,12 +220,15 @@ class _RoutineCard extends StatelessWidget {
                           Text('${exercise.weight?.toStringAsFixed(1)} kg'),
                           if (exercise.recommendedWeight != null)
                             Text(
-                              'Recomendado: ${exercise.recommendedWeight?.toStringAsFixed(1)} kg',
+                              '${l10n.routineRecommended}: ${exercise.recommendedWeight?.toStringAsFixed(1)} kg',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                         ],
                       )
-                    : const Text('Peso libre'),
+                    : Text(
+                        l10n.routineBodyweight,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
               ),
             )
             .toList(),
@@ -254,13 +244,17 @@ class _RoutineError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const Text('No fue posible cargar tus rutinas.'),
+          Text(l10n.routinesLoadError),
           const SizedBox(height: AppSpacing.md),
-          FilledButton(onPressed: onRetry, child: const Text('Reintentar')),
+          FilledButton(
+            onPressed: onRetry,
+            child: Text(l10n.commonRetry),
+          ),
         ],
       ),
     );
@@ -272,16 +266,20 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           const Icon(Icons.inbox_outlined, size: 48),
           const SizedBox(height: AppSpacing.md),
-          Text('Aún no tienes rutinas con este enfoque',
-              style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.routinesEmptyTitle,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
-          const Text('Genera una nueva rutina o cambia el filtro para ver más opciones.'),
+          Text(l10n.routinesEmptySubtitle,
+              textAlign: TextAlign.center),
         ],
       ),
     );

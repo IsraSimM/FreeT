@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/state/user_controller.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/widgets/free_t_top_bar.dart';
@@ -8,7 +9,7 @@ import '../../notifications/presentation/notifications_sheet.dart';
 import '../../settings/presentation/settings_sheet.dart';
 import '../application/evaluation_controller.dart';
 
-/// Pantalla de evaluación con cámara y feedback de postura.
+/// Pantalla de evaluaciÃƒÂ³n con cÃƒÂ¡mara y feedback de postura.
 class EvaluationPage extends ConsumerWidget {
   const EvaluationPage({super.key});
 
@@ -20,6 +21,7 @@ class EvaluationPage extends ConsumerWidget {
     final state = ref.watch(evaluationControllerProvider);
     final controller = ref.read(evaluationControllerProvider.notifier);
     final userState = ref.watch(userControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     final username = userState.maybeWhen(
       data: (profile) => profile.displayName,
@@ -58,7 +60,9 @@ class EvaluationPage extends ConsumerWidget {
                       left: 16,
                       child: Chip(
                         avatar: const Icon(Icons.timelapse_outlined),
-                        label: Text('Fase: ${state.phase.name.toUpperCase()}'),
+                        label: Text(
+                          '${l10n.evaluationPhasePrefix}: ${l10n.evaluationPhaseLabel(state.phase.name)}',
+                        ),
                       ),
                     ),
                     Positioned(
@@ -79,7 +83,7 @@ class EvaluationPage extends ConsumerWidget {
               children: EvaluationCue.values
                   .map(
                     (cue) => FilterChip(
-                      label: Text(_cueLabel(cue)),
+                      label: Text(l10n.evaluationCueLabel(cue.name)),
                       selected: state.cues.contains(cue),
                       onSelected: (_) => controller.toggleCue(cue),
                     ),
@@ -99,7 +103,11 @@ class EvaluationPage extends ConsumerWidget {
                           ? Icons.stop_circle_outlined
                           : Icons.play_circle_outline,
                     ),
-                    label: Text(state.phase == EvaluationPhase.recording ? 'Finalizar' : 'Iniciar evaluación'),
+                    label: Text(
+                      state.phase == EvaluationPhase.recording
+                          ? l10n.evaluationActionFinish
+                          : l10n.evaluationActionStart,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),
@@ -107,7 +115,7 @@ class EvaluationPage extends ConsumerWidget {
                   child: OutlinedButton.icon(
                     onPressed: controller.reset,
                     icon: const Icon(Icons.refresh_outlined),
-                    label: const Text('Restablecer'),
+                    label: Text(l10n.evaluationActionReset),
                   ),
                 ),
               ],
@@ -125,17 +133,6 @@ class EvaluationPage extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  String _cueLabel(EvaluationCue cue) {
-    switch (cue) {
-      case EvaluationCue.posture:
-        return 'Postura';
-      case EvaluationCue.range:
-        return 'Rango';
-      case EvaluationCue.speed:
-        return 'Ritmo';
-    }
   }
 
   void _openNotifications(BuildContext context) {
@@ -171,23 +168,24 @@ class _LiveFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final feedbackItems = <_FeedbackItem>[
-      const _FeedbackItem(
+      _FeedbackItem(
         icon: Icons.check_circle_outline,
-        title: 'Espalda neutra',
-        description: 'Mantén la alineación, excelente ejecución.',
+        title: l10n.evaluationFeedbackBackTitle,
+        description: l10n.evaluationFeedbackBackBody,
         color: Colors.green,
       ),
-      const _FeedbackItem(
+      _FeedbackItem(
         icon: Icons.warning_amber_outlined,
-        title: 'Rodillas',
-        description: 'Evita que se proyecten hacia adentro durante la bajada.',
+        title: l10n.evaluationFeedbackKneesTitle,
+        description: l10n.evaluationFeedbackKneesBody,
         color: Colors.orange,
       ),
-      const _FeedbackItem(
+      _FeedbackItem(
         icon: Icons.tips_and_updates_outlined,
-        title: 'Cadencia',
-        description: 'Controla la velocidad de bajada a 2s y subida a 1s.',
+        title: l10n.evaluationFeedbackCadenceTitle,
+        description: l10n.evaluationFeedbackCadenceBody,
         color: Colors.blueAccent,
       ),
     ];
@@ -197,8 +195,8 @@ class _LiveFeedback extends StatelessWidget {
       children: <Widget>[
         Text(
           phase == EvaluationPhase.recording
-              ? 'Feedback en vivo'
-              : 'Listo para empezar, ajusta postura y luz.',
+              ? l10n.evaluationLiveTitle
+              : l10n.evaluationLiveReady,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -228,10 +226,12 @@ class _EvaluationSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Resumen de sesión', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.evaluationSummaryTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.sm),
         Expanded(
           child: ListView.separated(
@@ -253,7 +253,7 @@ class _EvaluationSummary extends StatelessWidget {
         FilledButton.icon(
           onPressed: () {},
           icon: const Icon(Icons.save_outlined),
-          label: const Text('Guardar en historial'),
+          label: Text(l10n.evaluationSaveHistory),
         ),
       ],
     );

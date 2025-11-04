@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/localization/app_localizations.dart';
 import '../../../app/state/app_settings_controller.dart';
 import '../../../app/state/user_controller.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../services/auth/auth_guard.dart';
 import '../../dashboard/presentation/dashboard_page.dart';
 
-/// Pantalla de onboarding inicial con accesos a configuración básica.
+/// Pantalla de onboarding inicial con accesos a configuraciÃƒÂ³n bÃƒÂ¡sica.
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
 
@@ -33,10 +34,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(appSettingsControllerProvider);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configura tu experiencia'),
+        title: Text(l10n.onboardingTitle),
         automaticallyImplyLeading: false,
       ),
       body: Padding(
@@ -65,12 +67,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 if (_currentIndex > 0)
                   TextButton(
                     onPressed: _previous,
-                    child: const Text('Atrás'),
+                    child: Text(l10n.commonBack),
                   ),
                 const Spacer(),
                 FilledButton(
                   onPressed: _currentIndex == 3 ? _finish : _next,
-                  child: Text(_currentIndex == 3 ? 'Finalizar' : 'Siguiente'),
+                  child: Text(
+                    _currentIndex == 3 ? l10n.commonFinish : l10n.commonNext,
+                  ),
                 ),
               ],
             ),
@@ -128,17 +132,21 @@ class _LanguageStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final locales = const <Locale>[Locale('es'), Locale('en'), Locale('pt')];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('¿En qué idioma quieres usar FreeT?', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          l10n.onboardingLanguageTitle,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: AppSpacing.md),
         ...locales.map(
           (locale) => RadioListTile<Locale>(
             value: locale,
             groupValue: current,
-            title: Text(_label(locale)),
+            title: Text(l10n.languageLabel(locale.languageCode)),
             onChanged: (selected) {
               if (selected != null) {
                 onSelected(selected);
@@ -148,18 +156,6 @@ class _LanguageStep extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _label(Locale locale) {
-    switch (locale.languageCode) {
-      case 'en':
-        return 'Inglés';
-      case 'pt':
-        return 'Portugués';
-      case 'es':
-      default:
-        return 'Español';
-    }
   }
 }
 
@@ -171,10 +167,12 @@ class _ThemeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Selecciona un tema visual', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.onboardingThemeTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         Wrap(
           spacing: AppSpacing.sm,
@@ -205,28 +203,30 @@ class _DevicesStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Conecta tus dispositivos', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.onboardingDevicesTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         SwitchListTile(
           value: connected,
-          title: const Text('Sincronizar FreeT Band Pro'),
-          subtitle: const Text('Recoge frecuencia cardiaca y pasos en tiempo real'),
+          title: Text(l10n.onboardingDevicesBandTitle),
+          subtitle: Text(l10n.onboardingDevicesBandSubtitle),
           onChanged: onToggle,
         ),
         SwitchListTile(
           value: connected,
-          title: const Text('Sincronizar sensor de postura'),
-          subtitle: const Text('Recibe feedback avanzado durante tus rutinas'),
+          title: Text(l10n.onboardingDevicesSensorTitle),
+          subtitle: Text(l10n.onboardingDevicesSensorSubtitle),
           onChanged: onToggle,
         ),
         const SizedBox(height: AppSpacing.md),
         OutlinedButton.icon(
           onPressed: () {},
           icon: const Icon(Icons.add_link),
-          label: const Text('Configurar manualmente'),
+          label: Text(l10n.onboardingDevicesManual),
         ),
       ],
     );
@@ -241,28 +241,34 @@ class _SummaryStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Todo listo', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.onboardingSummaryTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         ListTile(
           leading: const Icon(Icons.language),
-          title: const Text('Idioma'),
+          title: Text(l10n.settingsLanguageTab),
           subtitle: Text(settings.locale.languageCode.toUpperCase()),
         ),
         ListTile(
           leading: const Icon(Icons.palette_outlined),
-          title: const Text('Tema'),
+          title: Text(l10n.settingsThemeTab),
           subtitle: Text(settings.themeChoice.name.toUpperCase()),
         ),
         ListTile(
           leading: const Icon(Icons.watch_outlined),
-          title: const Text('Dispositivos conectados'),
-          subtitle: Text(devicesConnected ? 'Band Pro y sensor de postura' : 'Pendiente de configurar'),
+          title: Text(l10n.onboardingSummaryDevices),
+          subtitle: Text(
+            devicesConnected
+                ? l10n.onboardingSummaryDevicesConnected
+                : l10n.onboardingSummaryDevicesPending,
+          ),
         ),
         const Spacer(),
-        const Text('Podrás ajustar estas preferencias en cualquier momento desde la sección More > Settings.'),
+        Text(l10n.onboardingSummaryNote),
       ],
     );
   }

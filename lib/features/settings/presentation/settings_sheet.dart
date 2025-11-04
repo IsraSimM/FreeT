@@ -289,80 +289,82 @@ class _NotificationSettings extends ConsumerWidget {
     final prefs = settings.notifications;
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SwitchListTile(
-            value: prefs.push,
-            title: Text(l10n.notificationsPush),
-            subtitle: Text(l10n.notificationsPushSubtitle),
-            onChanged: (value) {
-              ref
-                  .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(prefs.copyWith(push: value));
-            },
-          ),
-          SwitchListTile(
-            value: prefs.email,
-            title: Text(l10n.notificationsEmail),
-            subtitle: Text(l10n.notificationsEmailSubtitle),
-            onChanged: (value) {
-              ref
-                  .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(prefs.copyWith(email: value));
-            },
-          ),
-          SwitchListTile(
-            value: prefs.inApp,
-            title: Text(l10n.notificationsInApp),
-            subtitle: Text(l10n.notificationsInAppSubtitle),
-            onChanged: (value) {
-              ref
-                  .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(prefs.copyWith(inApp: value));
-            },
-          ),
-          const Divider(height: 32),
-          CheckboxListTile(
-            value: prefs.dailyReminders,
-            title: Text(l10n.notificationsDaily),
-            onChanged: (value) {
-              ref
-                  .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(
-                    prefs.copyWith(
-                      dailyReminders: value ?? prefs.dailyReminders,
-                    ),
-                  );
-            },
-          ),
-          CheckboxListTile(
-            value: prefs.weeklySummary,
-            title: Text(l10n.notificationsWeekly),
-            onChanged: (value) {
-              ref
-                  .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(
-                    prefs.copyWith(
-                      weeklySummary: value ?? prefs.weeklySummary,
-                    ),
-                  );
-            },
-          ),
-          CheckboxListTile(
-            value: prefs.personalizedTips,
-            title: Text(l10n.notificationsTips),
-            onChanged: (value) {
-              ref
-                  .read(appSettingsControllerProvider.notifier)
-                  .updateNotifications(
-                    prefs.copyWith(
-                      personalizedTips: value ?? prefs.personalizedTips,
-                    ),
-                  );
-            },
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SwitchListTile(
+              value: prefs.push,
+              title: Text(l10n.notificationsPush),
+              subtitle: Text(l10n.notificationsPushSubtitle),
+              onChanged: (value) {
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(prefs.copyWith(push: value));
+              },
+            ),
+            SwitchListTile(
+              value: prefs.email,
+              title: Text(l10n.notificationsEmail),
+              subtitle: Text(l10n.notificationsEmailSubtitle),
+              onChanged: (value) {
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(prefs.copyWith(email: value));
+              },
+            ),
+            SwitchListTile(
+              value: prefs.inApp,
+              title: Text(l10n.notificationsInApp),
+              subtitle: Text(l10n.notificationsInAppSubtitle),
+              onChanged: (value) {
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(prefs.copyWith(inApp: value));
+              },
+            ),
+            const Divider(height: 32),
+            CheckboxListTile(
+              value: prefs.dailyReminders,
+              title: Text(l10n.notificationsDaily),
+              onChanged: (value) {
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(
+                      prefs.copyWith(
+                        dailyReminders: value ?? prefs.dailyReminders,
+                      ),
+                    );
+              },
+            ),
+            CheckboxListTile(
+              value: prefs.weeklySummary,
+              title: Text(l10n.notificationsWeekly),
+              onChanged: (value) {
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(
+                      prefs.copyWith(
+                        weeklySummary: value ?? prefs.weeklySummary,
+                      ),
+                    );
+              },
+            ),
+            CheckboxListTile(
+              value: prefs.personalizedTips,
+              title: Text(l10n.notificationsTips),
+              onChanged: (value) {
+                ref
+                    .read(appSettingsControllerProvider.notifier)
+                    .updateNotifications(
+                      prefs.copyWith(
+                        personalizedTips: value ?? prefs.personalizedTips,
+                      ),
+                    );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

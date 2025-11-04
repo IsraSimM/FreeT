@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/localization/app_localizations.dart';
@@ -137,9 +137,7 @@ class _AttendanceBanner extends ConsumerWidget {
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Text(
-              locale.languageCode == 'en'
-                  ? 'Streak updated! Keep the momentum going.'
-                  : 'Â¡Racha actualizada! Sigue con ese impulso.',
+              l10n.dashboardStreakBanner,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -156,29 +154,30 @@ class _SummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cards = <Widget>[
       _SummaryCard(
-        title: 'Progreso diario',
+        title: l10n.dashboardSummaryProgressTitle,
         value: '${(summary.completion * 100).round()}%',
-        subtitle: 'Objetivo completado',
+        subtitle: l10n.dashboardSummaryProgressSubtitle,
         icon: Icons.task_alt,
       ),
       _SummaryCard(
-        title: 'Racha activa',
-        value: '${summary.activeStreak} dÃ­as',
-        subtitle: 'Sin ausencias',
+        title: l10n.dashboardSummaryStreakTitle,
+        value: l10n.timeDays(summary.activeStreak),
+        subtitle: l10n.dashboardSummaryStreakSubtitle,
         icon: Icons.local_fire_department_outlined,
       ),
       _SummaryCard(
-        title: 'CalorÃ­as',
+        title: l10n.dashboardSummaryCaloriesTitle,
         value: '${summary.calories} kcal',
-        subtitle: 'Estimado de hoy',
+        subtitle: l10n.dashboardSummaryCaloriesSubtitle,
         icon: Icons.local_fire_department,
       ),
       _SummaryCard(
-        title: 'Readiness',
+        title: l10n.dashboardSummaryReadinessTitle,
         value: '${summary.readinessScore.round()}%',
-        subtitle: 'RecuperaciÃ³n',
+        subtitle: l10n.dashboardSummaryReadinessSubtitle,
         icon: Icons.bolt_outlined,
       ),
     ];
@@ -186,7 +185,8 @@ class _SummarySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Resumen diario', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.dashboardSummaryTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         Wrap(
           spacing: AppSpacing.md,
@@ -244,17 +244,20 @@ class _RoutineSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Rutina de hoy', style: Theme.of(context).textTheme.titleLarge),
+            Text(l10n.dashboardRoutineTitle,
+                style: Theme.of(context).textTheme.titleLarge),
             TextButton.icon(
-              onPressed: () => ref.read(dashboardControllerProvider.notifier).refresh(),
+              onPressed: () =>
+                  ref.read(dashboardControllerProvider.notifier).refresh(),
               icon: const Icon(Icons.refresh_outlined),
-              label: const Text('Actualizar'),
+              label: Text(l10n.commonRefresh),
             ),
           ],
         ),
@@ -264,25 +267,28 @@ class _RoutineSection extends ConsumerWidget {
             child: ListTile(
               title: Text(exercise.name),
               subtitle: Text(
-                '${exercise.sets} sets Â· ${exercise.reps} reps',
+                l10n.routineSetsReps(exercise.sets, exercise.reps),
               ),
-              trailing: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    exercise.weight != null
-                        ? '${exercise.weight!.toStringAsFixed(1)} kg'
-                        : 'Peso libre',
-                    style: Theme.of(context).textTheme.labelLarge,
-                  ),
-                  if (exercise.recommendedWeight != null)
-                    Text(
-                      'Recomendado: ${exercise.recommendedWeight!.toStringAsFixed(1)} kg',
-                      style: Theme.of(context).textTheme.bodySmall,
+              trailing: exercise.weight != null
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          '${exercise.weight!.toStringAsFixed(1)} kg',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        if (exercise.recommendedWeight != null)
+                          Text(
+                            '${l10n.routineRecommended}: ${exercise.recommendedWeight!.toStringAsFixed(1)} kg',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                      ],
+                    )
+                  : Text(
+                      l10n.routineBodyweight,
+                      style: Theme.of(context).textTheme.labelLarge,
                     ),
-                ],
-              ),
             ),
           ),
         ),
@@ -298,10 +304,12 @@ class _StatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('EstadÃ­sticas', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.dashboardStatsTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         Column(
           children: stats
@@ -314,14 +322,19 @@ class _StatsSection extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(stat.label, style: Theme.of(context).textTheme.titleMedium),
+                          Text(stat.label,
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(height: AppSpacing.sm),
                           LinearProgressIndicator(
                             value: (stat.latestValue / stat.goalValue).clamp(0, 1),
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          Text('Ãšltimo valor: ${stat.latestValue.toStringAsFixed(1)} ${stat.unit}'),
-                          Text('Meta: ${stat.goalValue.toStringAsFixed(1)} ${stat.unit}'),
+                          Text(
+                            '${l10n.dashboardStatsLatest}: ${stat.latestValue.toStringAsFixed(1)} ${stat.unit}',
+                          ),
+                          Text(
+                            '${l10n.dashboardStatsGoal}: ${stat.goalValue.toStringAsFixed(1)} ${stat.unit}',
+                          ),
                         ],
                       ),
                     ),
@@ -342,10 +355,12 @@ class _GoalsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Metas activas', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.dashboardGoalsTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         ...goals.map(
           (goal) => Card(
@@ -357,15 +372,20 @@ class _GoalsSection extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(goal.name, style: Theme.of(context).textTheme.titleMedium),
+                      Text(goal.name,
+                          style: Theme.of(context).textTheme.titleMedium),
                       Text('${(goal.completion * 100).round()}%'),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   LinearProgressIndicator(value: goal.completion),
                   const SizedBox(height: AppSpacing.sm),
-                  Text('Actual: ${goal.current.toStringAsFixed(1)} ${goal.unit}'),
-                  Text('Meta: ${goal.target.toStringAsFixed(1)} ${goal.unit}'),
+                  Text(
+                    '${l10n.dashboardGoalCurrent}: ${goal.current.toStringAsFixed(1)} ${goal.unit}',
+                  ),
+                  Text(
+                    '${l10n.dashboardGoalTarget}: ${goal.target.toStringAsFixed(1)} ${goal.unit}',
+                  ),
                 ],
               ),
             ),
@@ -383,10 +403,12 @@ class _TipsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Tips personalizados', style: Theme.of(context).textTheme.titleLarge),
+        Text(l10n.dashboardTipsTitle,
+            style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: AppSpacing.md),
         ...tips.map(
           (tip) => Card(
@@ -398,7 +420,12 @@ class _TipsSection extends StatelessWidget {
               ),
               title: Text(tip.title),
               subtitle: Text(tip.description),
-              trailing: tip.ctaLabel != null ? TextButton(onPressed: () {}, child: Text(tip.ctaLabel!)) : null,
+              trailing: tip.ctaLabel != null
+                  ? TextButton(
+                      onPressed: () {},
+                      child: Text(tip.ctaLabel!),
+                    )
+                  : null,
             ),
           ),
         ),
@@ -415,6 +442,7 @@ class _DashboardError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -424,13 +452,10 @@ class _DashboardError extends StatelessWidget {
           FilledButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_outlined),
-            label: const Text('Reintentar'),
+            label: Text(l10n.commonRetry),
           ),
         ],
       ),
     );
   }
 }
-
-
-

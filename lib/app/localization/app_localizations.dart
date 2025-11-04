@@ -113,6 +113,7 @@ class AppLocalizations {
       'dashboard_goals_title': 'Active goals',
       'dashboard_goal_current': 'Current',
       'dashboard_goal_target': 'Target',
+      'dashboard_tips_title': 'Personalized tips',
       'notifications_sample_routine_title': 'Routine ready',
       'notifications_sample_routine_body':
           'Your leg routine for tomorrow is generated and ready to review.',
@@ -126,7 +127,8 @@ class AppLocalizations {
           'You still need 600ml to reach your daily goal.',
       'notifications_sample_health_type': 'Health',
       'evaluation_phase_prefix': 'Phase',
-      'evaluation_phase_setup': 'Setup',
+      'evaluation_phase_calibrating': 'Calibrating',
+      'evaluation_phase_ready': 'Ready',
       'evaluation_phase_recording': 'Recording',
       'evaluation_phase_reviewing': 'Review',
       'evaluation_action_start': 'Start evaluation',
@@ -145,7 +147,7 @@ class AppLocalizations {
           'Control the tempo: 2s down and 1s up.',
       'evaluation_cue_posture': 'Posture',
       'evaluation_cue_range': 'Range',
-      'evaluation_cue_tempo': 'Tempo',
+      'evaluation_cue_speed': 'Tempo',
       'evaluation_summary_title': 'Session summary',
       'evaluation_save_history': 'Save to history',
       'onboarding_title': 'Set up your experience',
@@ -282,6 +284,7 @@ class AppLocalizations {
       'dashboard_goals_title': 'Metas activas',
       'dashboard_goal_current': 'Actual',
       'dashboard_goal_target': 'Meta',
+      'dashboard_tips_title': 'Tips personalizados',
       'notifications_sample_routine_title': 'Rutina lista',
       'notifications_sample_routine_body':
           'Tu rutina de pierna para manana ya esta generada y lista para revisar.',
@@ -295,7 +298,8 @@ class AppLocalizations {
           'Aun te faltan 600ml para cumplir tu meta diaria.',
       'notifications_sample_health_type': 'Salud',
       'evaluation_phase_prefix': 'Fase',
-      'evaluation_phase_setup': 'Preparacion',
+      'evaluation_phase_calibrating': 'Calibracion',
+      'evaluation_phase_ready': 'Listo',
       'evaluation_phase_recording': 'Grabacion',
       'evaluation_phase_reviewing': 'Revision',
       'evaluation_action_start': 'Iniciar evaluacion',
@@ -315,7 +319,7 @@ class AppLocalizations {
           'Controla la velocidad de bajada a 2s y subida a 1s.',
       'evaluation_cue_posture': 'Postura',
       'evaluation_cue_range': 'Rango',
-      'evaluation_cue_tempo': 'Ritmo',
+      'evaluation_cue_speed': 'Ritmo',
       'evaluation_summary_title': 'Resumen de sesion',
       'evaluation_save_history': 'Guardar en historial',
       'onboarding_title': 'Configura tu experiencia',
@@ -452,6 +456,7 @@ class AppLocalizations {
       'dashboard_goals_title': 'Metas ativas',
       'dashboard_goal_current': 'Atual',
       'dashboard_goal_target': 'Meta',
+      'dashboard_tips_title': 'Dicas personalizadas',
       'notifications_sample_routine_title': 'Rotina pronta',
       'notifications_sample_routine_body':
           'Sua rotina de perna para amanha ja esta gerada e pronta para revisar.',
@@ -465,7 +470,8 @@ class AppLocalizations {
           'Ainda faltam 600ml para atingir sua meta diaria.',
       'notifications_sample_health_type': 'Saude',
       'evaluation_phase_prefix': 'Fase',
-      'evaluation_phase_setup': 'Preparacao',
+      'evaluation_phase_calibrating': 'Calibracao',
+      'evaluation_phase_ready': 'Pronto',
       'evaluation_phase_recording': 'Gravacao',
       'evaluation_phase_reviewing': 'Revisao',
       'evaluation_action_start': 'Iniciar avaliacao',
@@ -485,7 +491,7 @@ class AppLocalizations {
           'Controle o ritmo: 2s descendo e 1s subindo.',
       'evaluation_cue_posture': 'Postura',
       'evaluation_cue_range': 'Amplitude',
-      'evaluation_cue_tempo': 'Ritmo',
+      'evaluation_cue_speed': 'Ritmo',
       'evaluation_summary_title': 'Resumo da sessao',
       'evaluation_save_history': 'Salvar no historico',
       'onboarding_title': 'Configure sua experiencia',
@@ -640,6 +646,7 @@ class AppLocalizations {
   String get dashboardGoalCurrent =>
       _translate('dashboard_goal_current');
   String get dashboardGoalTarget => _translate('dashboard_goal_target');
+  String get dashboardTipsTitle => _translate('dashboard_tips_title');
   String get notificationsSampleRoutineTitle =>
       _translate('notifications_sample_routine_title');
   String get notificationsSampleRoutineBody =>
@@ -754,7 +761,7 @@ class AppLocalizations {
       _translate('routine_frequency_$frequency');
 
   String routineSetsReps(int sets, int reps) =>
-      '$sets $routineSetsLabel · $reps $routineRepsLabel';
+      '$sets $routineSetsLabel, $reps $routineRepsLabel';
 
   String timeDays(int count) => '$count $timeDaysLabel';
 
